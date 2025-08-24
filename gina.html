@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js library for sound effects -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.min.js"></script>
+    <style>
+        /* Custom styles for the game */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #6dd5ed, #2193b0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .game-heading {
+            color: #1a202c;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .game-prompt {
+            color: #4a5568;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #3182ce;
+        }
+
+        .guess-button {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+            color: #fff;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .guess-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .guess-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-box {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-height: 24px;
+            animation: fadeAndScale 0.5s ease-out; /* New animation for messages */
+        }
+
+        .win-message {
+            color: #38a169;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .low-message {
+            color: #e53e3e;
+        }
+
+        .high-message {
+            color: #3182ce;
+        }
+
+        .reset-button {
+            margin-top: 1rem;
+            background-color: #4CAF50;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: none; /* Initially hidden */
+        }
+        .reset-button:hover {
+            background-color: #45a049;
+        }
+
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .win-counter {
+            color: #38a169;
+        }
+        .guesses-counter {
+            color: #e53e3e;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        @keyframes fadeAndScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .highscore-container {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1 class="game-heading">Guess the Number!</h1>
+        <p class="game-prompt">I'm thinking of a number between 1 and 100. You have 10 guesses!</p>
+
+        <div class="info-container">
+            <span id="scoreDisplay" class="win-counter">Wins: 0</span>
+            <span id="guessesDisplay" class="guesses-counter">Guesses Left: 10</span>
+        </div>
+        
+        <input type="number" id="guessInput" class="input-field" placeholder="Enter your guess">
+        
+        <button id="guessButton" class="guess-button">Guess</button>
+        
+        <p id="message" class="message-box"></p>
+        
+        <button id="resetButton" class="reset-button">Play Again</button>
+
+        <div id="highscoreDisplay" class="highscore-container"></div>
+    </div>
+
+    <script>
+        // Game variables
+        let randomNumber;
+        let guessesLeft;
+        let score = 0;
+        let currentGuessAttempts = 0;
+        const maxGuesses = 10;
+        let highscore = localStorage.getItem('highscore') ? parseInt(localStorage.getItem('highscore')) : 0;
+        let gameActive = true;
+
+        // Sound effects setup
+        const correctSynth = new Tone.Synth().toDestination();
+        const wrongSynth = new Tone.PolySynth().toDestination();
+        // Changed winSynth to a PolySynth to play chords
+        const winSynth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: {
+                type: "triangle"
+            },
+            envelope: {
+                attack: 0.05,
+                decay: 0.1,
+                sustain: 0.2,
+                release: 0.5
+            }
+        }).toDestination();
+        
+        // Get DOM elements
+        const guessInput = document.getElementById('guessInput');
+        const guessButton = document.getElementById('guessButton');
+        const messageDisplay = document.getElementById('message');
+        const resetButton = document.getElementById('resetButton');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const guessesDisplay = document.getElementById('guessesDisplay');
+        const highscoreDisplay = document.getElementById('highscoreDisplay');
+
+        // Function to display a message
+        function showMessage(msg, className) {
+            messageDisplay.textContent = msg;
+            messageDisplay.className = `message-box ${className}`; // Update class to change color
+        }
+
+        // Function to start a new game
+        function newGame() {
+            gameActive = true;
+            randomNumber = Math.floor(Math.random() * 100) + 1;
+            guessesLeft = maxGuesses;
+            currentGuessAttempts = 0;
+            updateDisplay();
+            guessInput.disabled = false;
+            guessButton.style.display = 'block';
+            resetButton.style.display = 'none';
+            guessInput.value = '';
+            showMessage("");
+            updateHighscoreDisplay();
+            guessInput.focus();
+        }
+
+        // Function to update the score and guesses display
+        function updateDisplay() {
+            scoreDisplay.textContent = `Wins: ${score}`;
+            guessesDisplay.textContent = `Guesses Left: ${guessesLeft}`;
+        }
+        
+        // Function to update the highscore display
+        function updateHighscoreDisplay() {
+            highscoreDisplay.textContent = `High Score: ${highscore} wins`;
+        }
+
+        // Function to check the user's guess
+        function checkGuess() {
+            if (!gameActive) return;
+
+            const userGuess = Number(guessInput.value);
+
+            // Basic validation
+            if (userGuess < 1 || userGuess > 100 || isNaN(userGuess)) {
+                showMessage("Please enter a valid number between 1 and 100.", "low-message");
+                wrongSynth.triggerAttackRelease(["C2", "G2"], "8n");
+                return;
+            }
+
+            guessesLeft--;
+            currentGuessAttempts++;
+
+            // Game logic
+            if (userGuess === randomNumber) {
+                showMessage(`Congratulations! You guessed the number in ${currentGuessAttempts} attempts!`, "win-message");
+                score++;
+                winSynth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+                endGame(true);
+            } else if (guessesLeft === 0) {
+                showMessage(`Game Over! The number was ${randomNumber}.`, "low-message");
+                wrongSynth.triggerAttackRelease(["C2", "B1"], "4n");
+                endGame(false);
+            } else {
+                if (userGuess < randomNumber) {
+                    showMessage("Too low! Try a higher number.", "low-message");
+                    correctSynth.triggerAttackRelease("C3", "8n");
+                } else {
+                    showMessage("Too high! Try a lower number.", "high-message");
+                    correctSynth.triggerAttackRelease("G3", "8n");
+                }
+            }
+
+            // Clear the input field for the next guess and update display
+            guessInput.value = '';
+            updateDisplay();
+        }
+
+        // Function to end the game with a timer
+        function endGame(isWin) {
+            gameActive = false;
+            guessInput.disabled = true;
+            guessButton.style.display = 'none';
+            resetButton.style.display = 'block'; // Make the reset button visible
+
+            if (isWin) {
+                if (score > highscore) {
+                    highscore = score;
+                    localStorage.setItem('highscore', highscore);
+                    updateHighscoreDisplay();
+                }
+            }
+        }
+
+        // Event listeners
+        guessButton.addEventListener('click', checkGuess);
+        resetButton.addEventListener('click', newGame);
+        
+        // Add a keydown event listener to the input field
+        guessInput.addEventListener('keydown', function(event) {
+            // Check if the key pressed is the "Enter" key and the game is active
+            if (event.key === 'Enter' && gameActive) {
+                checkGuess();
+            }
+        });
+
+        // Start the first game when the page loads
+        newGame();
+    </script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Art Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            color: #333;
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+        }
+
+        .art-card {
+            background-color: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .art-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .art-piece-container {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fafafa;
+            position: relative;
+        }
+
+        .art-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .art-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        /* --- CSS Art Pieces --- */
+
+        /* Art Piece 1: A simple sunset scene */
+        .sunset {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #ff7e5f, #feb47b);
+            position: relative;
+        }
+        .sun {
+            width: 80px;
+            height: 80px;
+            background-color: #ffeb3b;
+            border-radius: 50%;
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 40px 10px #ffeb3b;
+        }
+        .mountains {
+            width: 100%;
+            height: 40%;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            clip-path: polygon(0 100%, 20% 40%, 40% 60%, 60% 30%, 80% 50%, 100% 20%, 100% 100%);
+        }
+
+        /* Art Piece 2: A simple hot air balloon */
+        .hot-air-balloon {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(135deg, #e57373, #f06292);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .hot-air-balloon::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 30px;
+            background-color: #9c6e5a;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+        }
+        .hot-air-balloon::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            border: 2px solid #555;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            background: repeating-linear-gradient(-45deg, #ccc, #ccc 10px, transparent 10px, transparent 20px);
+            z-index: -1;
+        }
+
+        /* Art Piece 3: A simple coffee cup */
+        .coffee-cup {
+            width: 150px;
+            height: 120px;
+            background-color: #f7f7f7;
+            border: 5px solid #333;
+            border-radius: 0 0 40px 40px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .coffee-cup::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background-color: transparent;
+            border: 5px solid #333;
+            border-left: none;
+            border-radius: 0 50% 50% 0;
+            top: 15px;
+            right: -55px;
+        }
+        .coffee-cup::after {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 20px;
+            background-color: #3f2e1e;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+        }
+        .steam {
+            width: 10px;
+            height: 50px;
+            background-color: #ccc;
+            border-radius: 50%;
+            position: absolute;
+            top: -60px;
+            left: 60px;
+            animation: steam-rise 2s infinite ease-in-out;
+            opacity: 0.5;
+        }
+        .steam:nth-child(2) {
+            left: 80px;
+            animation-delay: 0.5s;
+        }
+        @keyframes steam-rise {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            100% { transform: translateY(-30px) scale(1.2); opacity: 0; }
+        }
+
+        /* Art Piece 4: A simple robot */
+        .robot {
+            width: 150px;
+            height: 150px;
+            background-color: #66b2b2;
+            border-radius: 10px;
+            position: relative;
+            border: 5px solid #333;
+        }
+        .robot-head {
+            width: 80px;
+            height: 80px;
+            background-color: #4a9e9e;
+            border-radius: 10px;
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid #333;
+        }
+        .robot-head::before, .robot-head::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #ffeb3b;
+            border-radius: 50%;
+            top: 20px;
+            border: 3px solid #333;
+        }
+        .robot-head::before { left: 15px; }
+        .robot-head::after { right: 15px; }
+
+        /* Art Piece 5: A pixelated landscape */
+        .pixelated-landscape {
+            width: 100%;
+            height: 100%;
+            background-color: #87ceeb;
+            position: relative;
+        }
+        .pixelated-landscape::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(#f9f984, #f7d145);
+            bottom: 0;
+            clip-path: polygon(0 80%, 10% 60%, 20% 70%, 30% 50%, 40% 60%, 50% 40%, 60% 50%, 70% 30%, 80% 40%, 90% 20%, 100% 30%, 100% 100%, 0 100%);
+        }
+
+        /* Art Piece 6: A ghost */
+        .ghost {
+            width: 100px;
+            height: 120px;
+            background-color: #fff;
+            border-radius: 50% 50% 10% 10%;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: float 2s ease-in-out infinite;
+        }
+        .ghost::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 35px;
+            left: 20px;
+        }
+        .ghost::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 35px;
+            right: 20px;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Art Piece 7: A simple rocket ship */
+        .rocket-ship {
+            width: 60px;
+            height: 150px;
+            background-color: #f44336;
+            border-radius: 50% 50% 0 0;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .rocket-ship::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background-color: #ffc107;
+            bottom: 0;
+            clip-path: polygon(0 0, 100% 0, 70% 100%, 30% 100%);
+            animation: thrust 0.5s infinite alternate;
+        }
+        @keyframes thrust {
+            0% { transform: scaleY(1); }
+            100% { transform: scaleY(1.5); }
+        }
+
+        /* Art Piece 8: Cityscape */
+        .cityscape {
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c;
+            position: relative;
+        }
+        .building {
+            position: absolute;
+            bottom: 0;
+            background-color: #2d3748;
+        }
+        .building-1 { width: 40px; height: 100px; left: 10%; }
+        .building-2 { width: 50px; height: 150px; left: 30%; }
+        .building-3 { width: 60px; height: 80px; left: 55%; }
+        .building-4 { width: 50px; height: 120px; left: 80%; }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="text-center py-16 bg-white shadow-sm">
+        <h1 class="text-5xl font-bold text-gray-900">CSS Art Gallery</h1>
+        <p class="text-xl text-gray-600 mt-4">A collection of creations made with pure CSS.</p>
+    </header>
+
+    <div class="gallery-container">
+        <!-- Art Card 1 -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="sunset">
+                    <div class="mountains"></div>
+                    <div class="sun"></div>
+                </div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Sunset Scene</h3>
+                <p class="text-gray-500">Gradients, shadows, and clip-path.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 2 -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="hot-air-balloon"></div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Hot Air Balloon</h3>
+                <p class="text-gray-500">Pseudo-elements and complex borders.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 3: Coffee Cup -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="coffee-cup">
+                    <div class="steam"></div>
+                    <div class="steam"></div>
+                </div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Coffee Cup</h3>
+                <p class="text-gray-500">Border-radius, pseudo-elements, and keyframes.</p>
+            </div>
+        </div>
+        
+        <!-- Art Card 4: Robot -->
+        <div class="art-card">
+            <div class="art-piece-container flex flex-col justify-center items-center">
+                <div class="robot-head"></div>
+                <div class="robot"></div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">A Simple Robot</h3>
+                <p class="text-gray-500">Relative positioning and multiple divs.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 5: Pixelated Landscape -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="pixelated-landscape"></div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Pixelated Landscape</h3>
+                <p class="text-gray-500">Layering with pseudo-elements.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 6: Ghost -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="ghost"></div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">A Friendly Ghost</h3>
+                <p class="text-gray-500">Bouncing animation with keyframes.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 7: Rocket Ship -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="rocket-ship"></div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Rocket Ship</h3>
+                <p class="text-gray-500">Clip-path for shapes and animations.</p>
+            </div>
+        </div>
+
+        <!-- Art Card 8: Cityscape -->
+        <div class="art-card">
+            <div class="art-piece-container">
+                <div class="cityscape">
+                    <div class="building building-1"></div>
+                    <div class="building building-2"></div>
+                    <div class="building building-3"></div>
+                    <div class="building building-4"></div>
+                </div>
+            </div>
+            <div class="art-info">
+                <h3 class="art-title">Cityscape</h3>
+                <p class="text-gray-500">Simple shapes and positioning.</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
