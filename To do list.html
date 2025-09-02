@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex flex-col items-center min-h-screen">
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 text-gray-800">My To-Do List</h1>
+        
+        <!-- To-Do Input Form -->
+        <form id="todo-form" class="mb-6 flex flex-col sm:flex-row gap-4">
+            <!-- Task Input -->
+            <input 
+                type="text" 
+                id="task-input" 
+                placeholder="Add a new task..." 
+                class="flex-1 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+            
+            <!-- Date Input -->
+            <input 
+                type="date" 
+                id="date-input" 
+                class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+            
+            <!-- Time Input -->
+            <input 
+                type="time" 
+                id="time-input" 
+                class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+            
+            <!-- Add Task Button -->
+            <button 
+                type="submit" 
+                class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+            >
+                Add Task
+            </button>
+        </form>
+        
+        <!-- To-Do List -->
+        <ul id="todo-list" class="space-y-3">
+            <!-- Task items will be dynamically added here -->
+        </ul>
+    </div>
+    
+    <script>
+        // Get references to HTML elements
+        const todoForm = document.getElementById('todo-form');
+        const taskInput = document.getElementById('task-input');
+        const dateInput = document.getElementById('date-input');
+        const timeInput = document.getElementById('time-input');
+        const todoList = document.getElementById('todo-list');
+
+        // Initialize an empty array to store tasks
+        let tasks = [];
+
+        // Handle the form submission to add a new task
+        todoForm.addEventListener('submit', (e) => {
+            // Prevent the default form submission behavior (reloading the page)
+            e.preventDefault();
+
+            // Get the values from the input fields, removing any extra whitespace
+            const taskText = taskInput.value.trim();
+            const taskDate = dateInput.value;
+            const taskTime = timeInput.value;
+
+            // Check if the task input is not empty
+            if (taskText !== '') {
+                // Create a new task object with the text, date, time, and a completion status
+                const newTask = {
+                    id: Date.now(), // Use a unique ID based on the current timestamp
+                    text: taskText,
+                    date: taskDate,
+                    time: taskTime,
+                    completed: false,
+                };
+                
+                // Add the new task to the beginning of the tasks array
+                tasks.unshift(newTask);
+
+                // Clear the input fields for the next entry
+                taskInput.value = '';
+                dateInput.value = '';
+                timeInput.value = '';
+
+                // Re-render the tasks list
+                renderTasks();
+            }
+        });
+
+        // Function to render the tasks on the page
+        function renderTasks() {
+            // Clear the current list in the HTML to avoid duplicates
+            todoList.innerHTML = '';
+
+            // Loop through the tasks array to create and add each task element
+            tasks.forEach(task => {
+                // Create the list item element for the task
+                const listItem = document.createElement('li');
+                listItem.classList.add('flex', 'items-center', 'justify-between', 'bg-gray-100', 'p-4', 'rounded-lg', 'shadow-md', 'transition-all', 'duration-200', 'hover:bg-gray-200');
+
+                // Apply a line-through style if the task is completed
+                if (task.completed) {
+                    listItem.classList.add('line-through', 'text-gray-500');
+                }
+
+                // Create the text container for the task and its details
+                const taskDetails = document.createElement('div');
+                taskDetails.classList.add('flex', 'flex-col', 'flex-1', 'mr-4');
+                
+                // Create the span for the task text
+                const taskSpan = document.createElement('span');
+                taskSpan.textContent = task.text;
+                taskSpan.classList.add('text-lg', 'font-medium', 'break-words');
+                
+                // Add a new element to display the date and time
+                const dateTimeSpan = document.createElement('span');
+                
+                // Format the date and time for display
+                const dateDisplay = task.date ? new Date(task.date + 'T' + task.time).toLocaleDateString() : '';
+                const timeDisplay = task.time ? new Date('1970-01-01T' + task.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                
+                // Combine date and time for a nice display
+                if (dateDisplay && timeDisplay) {
+                    dateTimeSpan.textContent = `${dateDisplay} at ${timeDisplay}`;
+                } else if (dateDisplay) {
+                    dateTimeSpan.textContent = dateDisplay;
+                } else if (timeDisplay) {
+                    dateTimeSpan.textContent = timeDisplay;
+                }
+                dateTimeSpan.classList.add('text-sm', 'text-gray-500', 'mt-1');
+                
+                // Append the text and date/time to the details container
+                taskDetails.appendChild(taskSpan);
+                taskDetails.appendChild(dateTimeSpan);
+
+                // Create a container for the buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('flex', 'gap-2');
+
+                // Create the "Done" button
+                const doneButton = document.createElement('button');
+                doneButton.textContent = task.completed ? 'Undo' : 'Done';
+                doneButton.classList.add('px-3', 'py-1', 'rounded-lg', 'font-semibold', 'transition-all', 'duration-200', 'bg-green-500', 'text-white', 'hover:bg-green-600');
+
+                // Add an event listener to the "Done" button
+                doneButton.addEventListener('click', () => {
+                    // Toggle the completed status of the task
+                    task.completed = !task.completed;
+                    // Re-render the tasks list
+                    renderTasks();
+                });
+
+                // Create the "Delete" button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('px-3', 'py-1', 'rounded-lg', 'font-semibold', 'transition-all', 'duration-200', 'bg-red-500', 'text-white', 'hover:bg-red-600');
+
+                // Add an event listener to the "Delete" button
+                deleteButton.addEventListener('click', () => {
+                    // Filter out the task to be deleted
+                    tasks = tasks.filter(t => t.id !== task.id);
+                    // Re-render the tasks list
+                    renderTasks();
+                });
+                
+                // Append the buttons to their container
+                buttonContainer.appendChild(doneButton);
+                buttonContainer.appendChild(deleteButton);
+
+                // Append the task details and the buttons to the list item
+                listItem.appendChild(taskDetails);
+                listItem.appendChild(buttonContainer);
+                
+                // Append the new list item to the main to-do list
+                todoList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
